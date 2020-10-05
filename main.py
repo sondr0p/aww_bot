@@ -1,31 +1,34 @@
 import tweepy
 import json
+import praw
 
-def post():
-    twitter_file = open('twitter.json',)
+def GetTwitterAPI(fileName):
+    # grab keys from file
+    twitter_file = open(fileName,)
     twitter_data = json.load(twitter_file)
     twitter_file.close
+    
+    # authenticate
+    auth = tweepy.OAuthHandler(twitter_data["consumerkey"], twitter_data["consumersecret"])
+    auth.set_access_token(twitter_data["token"], twitter_data["tokensecret"])
 
-    consumerkey = twitter_data["consumerkey"]
-    consumersecret = twitter_data["consumersecret"]
-    token = twitter_data["token"]
-    tokensecret = twitter_data["tokensecret"]
+    api = tweepy.API(auth)
+    return api
 
-    # Get auth
-    #auth = tweepy.OAuthHandler('consumerkey', 'consumersecret')
-    #auth.set_access_token('token', 'tokensecret')
+def GetRedditAPI(fileName):
+    reddit_file = open(fileName,)
+    reddit_data = json.load(reddit_file)
+    reddit_file.close
+    api = praw.Reddit(client_id=reddit_data["client_id"],
+                    client_secret=reddit_data["client_secret"],
+                    password=reddit_data["password"],
+                    user_agent="testscript",
+                    username=reddit_data["username"])
 
-    #api = tweepy.API(auth)
+    return api
 
-    #override tweepy.StreamListener to add logic to on_status
-    #class MyStreamListener(tweepy.StreamListener):
-    #    def on_status(self, status):
-    #        print(status.text)
-
-    #myStreamListener = MyStreamListener()
-    #myStream = tweepy.Stream(auth = api.auth, listener=myStreamListener)
-
-    # Tweet
-    # api.update_status(title)
-
-post()
+TwitterAPI = GetTwitterAPI("twitter.json")
+RedditAPI = GetRedditAPI("reddit.json")
+subreddits = RedditAPI.subreddits.popular()
+for sub in subreddits:
+    print(sub)
