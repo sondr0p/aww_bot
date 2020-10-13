@@ -1,6 +1,8 @@
 import tweepy
 import json
 import praw
+import pprint
+from urllib.request import urlretrieve
 
 def GetTwitterAPI(fileName):
     # grab keys from file
@@ -16,9 +18,12 @@ def GetTwitterAPI(fileName):
     return api
 
 def GetRedditAPI(fileName):
+    # grab keys from file
     reddit_file = open(fileName,)
     reddit_data = json.load(reddit_file)
     reddit_file.close
+
+    # create 
     api = praw.Reddit(client_id=reddit_data["client_id"],
                     client_secret=reddit_data["client_secret"],
                     password=reddit_data["password"],
@@ -29,6 +34,10 @@ def GetRedditAPI(fileName):
 
 TwitterAPI = GetTwitterAPI("twitter.json")
 RedditAPI = GetRedditAPI("reddit.json")
-subreddits = RedditAPI.subreddits.popular()
-for sub in subreddits:
-    print(sub)
+subreddit = RedditAPI.subreddit("aww")
+for submission in subreddit.top("day", limit=1):
+    url = submission.media['reddit_video']['fallback_url']
+    print(url)
+    name = "some.mp4"
+    urlretrieve(url, name)
+    #pprint.pprint(vars(submission))
